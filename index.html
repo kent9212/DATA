@@ -3,55 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World with XHR</title>
+    <title>Hello World</title>
 </head>
 <body>
     <h1>Hello, World!</h1>
+    <button id="fetchData">Fetch Data</button>
     <script>
-        // 跨域请求的URL
-        const url = "https://note.youdao.com/yws/api/note/378420dcb6af495bd02a0cfc30c252e7?sev=j1&editorType=1&unloginId=fa93a7f6-6c5c-936a-0d70-2253d2ed45b8&editorVersion=new-json-editor&sec=v1";
+        document.getElementById('fetchData').onclick = function() {
+            var xhr = new XMLHttpRequest();
+            var url = 'https://note.youdao.com/yws/api/note/378420dcb6af495bd02a0cfc30c252e7?sev=j1&editorType=1&unloginId=fa93a7f6-6c5c-936a-0d70-2253d2ed45b8&editorVersion=new-json-editor&sec=v1';
 
-        // 发起XHR请求
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-
-        // 设置请求头
-        xhr.setRequestHeader("Accept", "application/json");
-        xhr.setRequestHeader("Content-Type", "application/json");
-
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    // 处理响应
-                    const resp = JSON.parse(xhr.responseText);
-                    var jsonData = resp.data;
-                    var contentJson = JSON.parse(jsonData.content);
-
-                    console.log(jsonData.content);
-
-                    function findValueByKey8(obj) {
-                        var result = '';
-                        for (var key in obj) {
-                            if (typeof obj[key] === 'object') {
-                                result += findValueByKey8(obj[key]);
-                            } else {
-                                if (key === '8') {
-                                    result += obj[key] + '\n';
-                                }
-                            }
-                        }
-                        return result;
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        alert(xhr.responseText);
+                    } else {
+                        alert('Request failed. Status: ' + xhr.status);
                     }
-
-                    var key8Values = findValueByKey8(contentJson);
-                    alert(key8Values);
-                } else {
-                    console.error("请求失败，状态码：" + xhr.status);
                 }
-            }
+            };
+            xhr.send();
         };
-
-        xhr.send();
     </script>
 </body>
 </html>
