@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello World</title>
+</head>
+<body>
+    <h1>Hello, World!</h1>
+
+    <script>
+        function findValueByKey8(obj) {
+            var result = '';
+            for (var key in obj) {
+                if (typeof obj[key] === 'object') {
+                    result += findValueByKey8(obj[key]);
+                } else {
+                    if (key === '8') {
+                        result += obj[key] + '\n';
+                    }
+                }
+            }
+            return result;
+        }
+
+        function handleResponse(resp) {
+            if (resp.status === 200) {
+                var jsonData = resp.responseText;
+                var contentJson = JSON.parse(jsonData).content;
+                console.log(jsonData);
+
+                var key8Values = findValueByKey8(contentJson);
+                alert(key8Values);
+            } else {
+                console.error('Request failed with status code', resp.status);
+            }
+        }
+
+        function sendRequest() {
+            var xhr = new XMLHttpRequest();
+            var url = "https://note.youdao.com/yws/api/note/378420dcb6af495bd02a0cfc30c252e7?sev=j1&editorType=1&unloginId=fa93a7f6-6c5c-936a-0d70-2253d2ed45b8&editorVersion=new-json-editor&sec=v1";
+            xhr.open('GET', url, true);
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    handleResponse(xhr);
+                }
+            };
+
+            xhr.send();
+        }
+
+        // 发起请求
+        sendRequest();
+    </script>
+</body>
+</html>
