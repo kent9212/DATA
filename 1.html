@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日历</title>
+    <style>
+        .calendar-container {
+            display: flex;
+            justify-content: space-between; /* 使两个容器在页面水平方向上等分 */
+            
+            
+        }
+
+        .calendar {
+            flex: 1; /* 让两个容器自动占据可用的空间 */
+            border: 1px solid #000; /* 添加边框 */
+            padding: 2px; /* 添加内边距 */            
+            margin: 2px;
+            
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2px; /* 调整表格之间的间距 */
+            border: 0px solid #000; /* 添加边框 */
+            table-layout: fixed;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 2px; /* 调整单元格内边距 */
+            text-align: center;
+        }
+
+        .weekdays {
+            background-color: #FFCC99; /* 设置星期行的背景颜色 */
+        }
+        .current-date {
+            background-color: lightgreen;
+            border-radius: 50%; /* 修改圆角大小 */
+        }
+        .past-date {
+            color: red; /* 设置过去日期的字体颜色为红色 */
+        }
+
+        #month-year,
+        #next-month-year {
+            margin-top: 0px; /* 设置上边距为0像素 */
+            margin-bottom: 0px;
+        }
+        .full-date {
+            display: none; /* 隐藏完整日期 */
+        }
+        #date-list {
+            margin-top: 0px; /* 增加日期列表的上边距 */
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <div class="calendar" id="current-calendar">
+            <h2 id="month-year"></h2>
+            <table id="current-month"></table>
+        </div>
+        <div class="calendar" id="next-calendar">
+            <h2 id="next-month-year"></h2>
+            <table id="next-month"></table>
+        </div>
+    </div>
+    <div id="date-list"></div> <!-- 显示日期列表 -->
+    <button onclick="copyDates()">复制日期</button>
+    <button onclick="clearDates()">清空日期</button>
+    <button onclick="copyDatesWithH()">复制日期并加H</button>
+
+    <script>
+        var selectedDates = []; // 存储选择的日期和星期
+
+        function buildCalendar(calendarId, year, month) {
+            var calendarBody = document.getElementById(calendarId);
+            var today = new Date();
+            var currentDay = today.getDate();
+            var firstDayOfMonth = new Date(year, month, 1);
+            var startingDay = (firstDayOfMonth.getDay() + 6) % 7; // 获取本月第一天是星期几（0-6），并从周一开始
+            var endDate = new Date(year, month + 1, 0).getDate(); // 获取本月总天数
+
+            var row = calendarBody.insertRow(-1); // 插入一行
+            var day = 1;
+
+            // 插入星期行
+            row = calendarBody.insertRow(-1);
+            row.classList.add('weekdays'); // 添加星期行的类
+
+            // 插入星期
+            var weekdays = ['一', '二', '三', '四', '五', '六', '日'];
+            for (var i = 0; i < 7; i++) {
+                var cell = row.insertCell(-1);
+                cell.innerHTML = weekdays[i];
+            }
+
+            // 插入日期
+            row = calendarBody.insertRow(-1); // 插入一行
+            // 插入空白格
+            for (var i = 0; i < startingDay; i++) {
+                row.insertCell(-1);
+            }
+
+            // 插入日期
+            for (var i = startingDay; i < 7; i++) {
+                var cell = row.insertCell(-1);
+                var formattedDateStr = year + '-' + (month + 1 < 10 ? '0' + (month + 1) : month + 1) + '-' + (day < 10 ? '0' + day : day); // 格式化日期字符串
+                if (day < currentDay && year == today.getFullYear() && month == today.getMonth()) {
+                    cell.classList.add('past-date'); // 设置过去日期的样式
+                }
+                if (day === currentDay && calendarId === 'current-month') {
+                    cell.classList.add('current-date');
+                }
+                cell.innerHTML = '<span class="date">' + day + '</span><span class="full-date">' + formattedDateStr + '</span>'; // 在单元格中显示日期和完整的日期字符串
+                day++;
+            }
+
+            for (var i = 2; i < 7; i++) {
+                var row = calendarBody.insertRow(-1);
+                for (var j = 0; j < 7; j++) {
+                    if (day > endDate) {
+                        break;
+                    }
+                    var cell = row.insertCell(-1);
+                    var formattedDateStr = year + '-' + (month + 1 < 10 ? '0' + (month + 1) : month + 1) + '-' + (day < 10 ? '0' + day : day); // 格式化日期字符串
+                    if (day < currentDay && year == today.getFullYear() && month == today.getMonth()) {
+                        cell.classList.add('past-date'); // 设置过去日期的样式
+                    }
+                    if (day === currentDay && calendarId === 'current-month') {
+                        cell.classList.add('current-date');
+                    }
+                    cell.innerHTML = '<span class="date">' + day + '</span><span class="full-date">' + formattedDateStr + '</span>'; // 在单元格中显示日期和完整的日期字符串
+                    day++;
+                }
+                if (day > endDate) {
+                    break;
+                }
+            }
+        }
+
+        // 获取当前日期
+        var today = new Date();
+        var month = today.getMonth(); // 获取当前月份（0-11）
+        var year = today.getFullYear(); // 获取当前年份
+        var currentDate = today.getDate(); // 获取当前日期
+
+        // 设置月份和年份
+        document.getElementById('month-year').innerHTML = year + '年' + (month + 1) + '月';
+        document.getElementById('next-month-year').innerHTML = year + '年' + (month + 2) + '月';
+
+        // 构建当前月份日历
+        buildCalendar('current-month', year, month);
+
+        // 构建下个月份日历
+        buildCalendar('next-month', year, month + 1);
+
+        // 获取所有日期单元格
+        const dateCells = document.querySelectorAll('td');
+
+        // 遍历每个日期单元格
+        dateCells.forEach(cell => {
+            // 添加点击事件监听器
+            cell.addEventListener('click', function() {
+                // 查找当前单元格中的所有 span 元素
+                const spans = cell.querySelectorAll('span.full-date');
+                // 遍历每个 span 元素
+                spans.forEach(span => {
+                    // 获取日期和星期
+                    const date = span.innerText;
+                    const dayOfWeek = cell.parentNode.parentNode.querySelector('.weekdays').querySelectorAll('td')[cell.cellIndex].innerText;
+                    // 将日期和星期添加到数组中
+                    selectedDates.push({date: date, dayOfWeek: dayOfWeek});
+                    // 去除重复项
+                    selectedDates = selectedDates.filter((obj, index, self) =>
+                        index === self.findIndex((t) => (
+                            t.date === obj.date && t.dayOfWeek === obj.dayOfWeek
+                        ))
+                    );
+                    // 排序
+                    selectedDates.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    // 更新日期列表
+                    updateDateList();
+                });
+            });
+        });
+        
+        // 获取所有星期单元格
+        const weekdayCells = document.querySelectorAll('.weekdays td');
+        
+        // 遍历每个星期单元格
+        weekdayCells.forEach(cell => {
+            // 添加点击事件监听器
+            cell.addEventListener('click', function() {
+                // 获取点击的星期几和月份
+                const dayOfWeek = cell.innerText;
+                const currentMonth = parseInt((document.getElementById('month-year').innerText).split('年')[1].split('月')[0]); // 获取当前显示的月份
+                const nextMonth = parseInt((document.getElementById('next-month-year').innerText).split('年')[1].split('月')[0]); // 获取下个月份
+        
+                // 判断用户点击的是当前月份的星期还是下个月的星期
+                if (cell.closest('table').id === 'current-month') {
+                    // 用户点击了当前月份的星期
+                    addWeekdayDatesToContainer(dayOfWeek, currentMonth);
+                } else if (cell.closest('table').id === 'next-month') {
+                    // 用户点击了下个月的星期
+                    addWeekdayDatesToContainer(dayOfWeek, nextMonth);
+                }
+            });
+        });
+        
+        // 根据星期几和月份确定日期并添加到容器中
+        function addWeekdayDatesToContainer(dayOfWeek, month) {
+            const dateListContainer = document.getElementById('date-list');
+            dateListContainer.innerHTML = ''; // 清空容器
+        
+            // 获取所有日期单元格
+            const dateCells = document.querySelectorAll('td');
+        
+            // 遍历日期单元格
+            dateCells.forEach(cell => {
+                const spans = cell.querySelectorAll('span.full-date');
+                spans.forEach(span => {
+                    // 获取日期、星期和月份
+                    const date = span.innerText;
+                    const weekday = cell.parentNode.parentNode.querySelector('.weekdays').querySelectorAll('td')[cell.cellIndex].innerText;
+                    const cellMonth = parseInt((cell.closest('table').id === 'current-month') ? (document.getElementById('month-year').innerText).split('年')[1].split('月')[0] : (document.getElementById('next-month-year').innerText).split('年')[1].split('月')[0]);
+        
+                    // 如果日期对应的星期和月份与点击的星期和月份匹配，则添加到容器中
+                    if (weekday === dayOfWeek && cellMonth === month) {
+                        selectedDates.push({date: date, dayOfWeek: weekday});
+                    }
+                });
+            });
+        
+            // 更新日期列表
+            updateDateList();
+        }
+        
+
+       // 更新日期列表
+       function updateDateList() {
+           const dateListContainer = document.getElementById('date-list');
+           dateListContainer.innerHTML = ''; // 清空容器
+           
+           // 去重
+           selectedDates = selectedDates.filter((date, index, self) =>
+               index === self.findIndex((d) => (
+                   d.date === date.date && d.dayOfWeek === date.dayOfWeek
+               ))
+           );
+       
+           // 排序
+           selectedDates.sort((a, b) => {
+               const dateA = new Date(a.date);
+               const dateB = new Date(b.date);
+               return dateA - dateB;
+           });
+       
+           // 创建列表
+           const ul = document.createElement('ul');
+           selectedDates.forEach(obj => {
+               const li = document.createElement('li');
+               li.textContent = `${obj.date}  星期${obj.dayOfWeek}`;
+               ul.appendChild(li);
+           });
+           dateListContainer.appendChild(ul);
+       }
+       
+
+        // 复制日期
+        function copyDates() {
+            let datesToCopy = '';
+            selectedDates.forEach(obj => {
+                datesToCopy += obj.date + '\n';
+            });
+            copyContentToClipboard(datesToCopy);
+        }
+
+        // 清空日期
+        function clearDates() {
+            selectedDates = [];
+            updateDateList();
+        }
+
+        // 复制日期并加H
+        function copyDatesWithH() {
+            let datesToCopy = '';
+            selectedDates.forEach(obj => {
+                datesToCopy += obj.date + 'H' + '\n';
+            });
+            copyContentToClipboard(datesToCopy);
+        }
+
+
+        // 在复制内容到剪贴板的函数中
+        function copyContentToClipboard(content) {
+            // 创建临时文本框元素
+            var tempTextArea = document.createElement("textarea");
+            tempTextArea.value = content;
+            tempTextArea.style.position = "fixed"; // 确保不会影响页面布局
+            document.body.appendChild(tempTextArea);
+        
+            // 选中临时文本框中的内容
+            tempTextArea.select();
+            tempTextArea.setSelectionRange(0, 99999); // 兼容 iOS
+        
+            // 复制选中的内容到剪贴板
+            document.execCommand("copy");
+        
+            // 移除临时文本框
+            document.body.removeChild(tempTextArea);
+        
+            // 将内容转换为字符串
+            var contentString = content.toString();
+        
+            // 使用 $notify 方法将内容回传到 JSBox
+            $notify("copiedToClipboard", contentString);
+        }
+        
+        
+        
+    </script>
+</body>
+</html>
