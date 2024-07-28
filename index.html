@@ -6,23 +6,18 @@
     <title>Hello World</title>
 </head>
 <body>
-    <h1>Hello, World!1</h1>
+    <h1>Hello, World!2</h1>
     <button id="fetchData">Fetch Data</button>
     <script>
         document.getElementById('fetchData').onclick = function() {
-            var url = 'https://note.youdao.com/yws/api/note/378420dcb6af495bd02a0cfc30c252e7?sev=j1&editorType=1&unloginId=fa93a7f6-6c5c-936a-0d70-2253d2ed45b8&editorVersion=new-json-editor&sec=v1';
-
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.text();
-                })
-                .then(data => alert(data))
-                .catch(error => alert('Fetch error: ' + error.message));
+            var script = document.createElement('script');
+            script.src = 'https://note.youdao.com/yws/api/note/378420dcb6af495bd02a0cfc30c252e7?sev=j1&editorType=1&unloginId=fa93a7f6-6c5c-936a-0d70-2253d2ed45b8&editorVersion=new-json-editor&sec=v1';
+            document.body.appendChild(script);
         };
+
+        function handleResponse(data) {
+            alert(JSON.stringify(data));
+        }
     </script>
 </body>
 </html>
-
