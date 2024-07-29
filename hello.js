@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hello Alert Script
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.3
 // @description  显示一个包含"hello"的弹窗
 // @author       none
 // @match        *://*/*
