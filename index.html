@@ -6,18 +6,35 @@
     <title>Hello World</title>
 </head>
 <body>
-    <h1>Hello, World!2</h1>
+    <h1>Hello, World!</h1>
     <button id="fetchData">Fetch Data</button>
     <script>
         document.getElementById('fetchData').onclick = function() {
-            var script = document.createElement('script');
-            script.src = 'https://note.youdao.com/yws/api/note/378420dcb6af495bd02a0cfc30c252e7?sev=j1&editorType=1&unloginId=fa93a7f6-6c5c-936a-0d70-2253d2ed45b8&editorVersion=new-json-editor&sec=v1';
-            document.body.appendChild(script);
-        };
+            var xhr = new XMLHttpRequest();
+            var url = 'https://note.youdao.com/yws/api/note/378420dcb6af495bd02a0cfc30c252e7?sev=j1&editorType=1&unloginId=fa93a7f6-6c5c-936a-0d70-2253d2ed45b8&editorVersion=new-json-editor&sec=v1';
 
-        function handleResponse(data) {
-            alert(JSON.stringify(data));
-        }
+            xhr.open('GET', url, true);
+            xhr.setRequestHeader('Host', 'note.youdao.com');
+            xhr.setRequestHeader('Sec-Fetch-Site', 'none');
+            xhr.setRequestHeader('Connection', 'keep-alive');
+            xhr.setRequestHeader('Sec-Fetch-Mode', 'navigate');
+            xhr.setRequestHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8');
+            xhr.setRequestHeader('User-Agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Teak/4.4 Version/16 Mobile/15E148 Safari/604.1');
+            xhr.setRequestHeader('Accept-Language', 'zh-CN,zh-Hans;q=0.9');
+            xhr.setRequestHeader('Sec-Fetch-Dest', 'document');
+            xhr.setRequestHeader('Accept-Encoding', 'gzip, deflate, br');
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        alert(xhr.responseText);
+                    } else {
+                        alert('Request failed. Status: ' + xhr.status);
+                    }
+                }
+            };
+            xhr.send();
+        };
     </script>
 </body>
 </html>
